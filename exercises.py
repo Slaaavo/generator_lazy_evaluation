@@ -86,11 +86,13 @@ def sample(items):
 
 # Uloha 13:
 def sample_no_rep(items):
-    gen = pseudorandom(2 ** 31, 1103515245, 12345, 1)
-    my_list = list(items)
-    while len(my_list) > 0:
-        i = next(gen) % len(my_list)
-        yield my_list.pop(i)
+    random_generator = pseudorandom(2**31, 1103515245, 12345, 1)
+    length = len(items)
+    while length > 0:
+        index = next(random_generator) % length
+        yield items[index]
+        items = items[:index] + items[index+1:]
+        length -= 1
 
 
 # Uloha 14:
@@ -121,14 +123,26 @@ def primes_memory():
 
 # Uloha 16:
 def nth_prime(n):
-    return next(islice(primes_memory(), n - 1, n))
+    # return next(islice(primes_memory(), n - 1, n))
+    prime = 0
+    primes_generator = primes_memory()
+    for _ in range(n):
+        prime = next(primes_generator)
+    return prime
 
 
 # Uloha 17:
 def pairs(list1, list2):
-    i1, i2 = iter(list1), iter(list2)
+    iterators = iter(list1), iter(list2)
+    stop_obj = object()
     while True:
-        yield (next(i1), next(i2))
+        result = []
+        for iterator in iterators:
+            new_value = next(iterator, stop_obj)
+            if new_value is stop_obj:
+                return
+            result.append(new_value)
+        yield tuple(result)
 
 
 # Uloha 18:
