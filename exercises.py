@@ -20,21 +20,18 @@ def square_comprehension(numbers):
 
 # Uloha 4:
 def cycle(list):
-    index = 0
-    length = len(list)
     while True:
-        yield list[index % length]
-        index += 1
+        for l in list:
+            yield l
 
 
 # Uloha 5:
 def factorial():
-    value = 1
-    number = 1
+    fact, x = 1, 1
     while True:
-        yield value
-        number += 1
-        value = value * number
+        yield fact
+        fact *= x + 1
+        x += 1
 
 
 # Uloha 6:
@@ -48,11 +45,7 @@ def digits(n, base):
 
 # Uloha 7:
 def factorial_digit_sum(N):
-    number = 0
-    factorial_generator = factorial()
-    for _ in range(N):
-        number = next(factorial_generator)
-    return reduce(add, digits(number, 10))
+    return reduce(add, digits(next(islice(factorial(), N - 1, N)), 10))
 
 
 # Uloha 8:
@@ -93,13 +86,11 @@ def sample(items):
 
 # Uloha 13:
 def sample_no_rep(items):
-    random_generator = pseudorandom(2**31, 1103515245, 12345, 1)
-    length = len(items)
-    while length > 0:
-        index = next(random_generator) % length
-        yield items[index]
-        items = items[:index] + items[index+1:]
-        length -= 1
+    gen = pseudorandom(2 ** 31, 1103515245, 12345, 1)
+    my_list = list(items)
+    while len(my_list) > 0:
+        i = next(gen) % len(my_list)
+        yield my_list.pop(i)
 
 
 # Uloha 14:
@@ -130,25 +121,14 @@ def primes_memory():
 
 # Uloha 16:
 def nth_prime(n):
-    prime = 0
-    primes_generator = primes_memory()
-    for _ in range(n):
-        prime = next(primes_generator)
-    return prime
+    return next(islice(primes_memory(), n - 1, n))
 
 
 # Uloha 17:
 def pairs(list1, list2):
-    iterators = iter(list1), iter(list2)
-    stop_obj = object()
+    i1, i2 = iter(list1), iter(list2)
     while True:
-        result = []
-        for iterator in iterators:
-            new_value = next(iterator, stop_obj)
-            if new_value is stop_obj:
-                return
-            result.append(new_value)
-        yield tuple(result)
+        yield (next(i1), next(i2))
 
 
 # Uloha 18:
@@ -178,28 +158,17 @@ def trange(start, stop, step):
     returns a sequence of time tuples from start to stop incremented by step
     """
 
-    current = list(start)
-    while current < list(stop):
-        yield tuple(current)
-        seconds = step[2] + current[2]
-        min_borrow = 0
-        hours_borrow = 0
-        if seconds < 60:
-            current[2] = seconds
-        else:
-            current[2] = seconds - 60
-            min_borrow = 1
-        minutes = step[1] + current[1] + min_borrow
-        if minutes < 60:
-            current[1] = minutes
-        else:
-            current[1] = minutes - 60
-            hours_borrow = 1
-        hours = step[0] + current[0] + hours_borrow
-        if hours < 24:
-            current[0] = hours
-        else:
-            current[0] = hours -24
+    start = start[0] * 3600 + start[1] * 60 + start[2]
+    end = stop[0] * 3600 + stop[1] * 60 + stop[2]
+    step = step[0] * 3600 + step[1] * 60 + step[2]
+    while start < end:
+        temp = start
+        hours = temp // 3600
+        temp %= 3600
+        minutes = temp // 60
+        seconds = temp % 60
+        yield (hours, minutes, seconds)
+        start += step
 
 # Uloha 20:
 def k_permutations(items, n):
